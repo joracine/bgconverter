@@ -16,6 +16,6 @@ artifacts:
   files:
     - '.ebextensions/**/*'
     - 'ebdjango/**/*'
-    - 'helloworld/**/*'
+    - 'bgconverter/**/*'
     - 'manage.py'
     - 'requirements.txt'
