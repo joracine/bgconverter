@@ -1,0 +1,122 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BG Converter</title>
+    <link rel="stylesheet" href="{% static 'bgconverter/bgconverter.css' %}"/>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script src="{% static 'bgconverter/validate.min.js' %}"></script>
+
+<h1>Blood Glucose Smart Converter</h1>
+<form method="post">
+    {% csrf_token %}
+    <div class="form">
+        <div style="display: inline-block">
+            <div class="form_label">mmol/L:</div>
+            <input class="input_number" id="id_mmol_per_l" type="text"/>
+            <div class="form_label">mg/dL:</div>
+            <input class="input_number" id="id_mg_per_dl" type="text"/>
+        </div>
+    </div>
+</form>
+
+<script>
+    const default_mg_per_dl = 0.0;
+    const default_mmol_per_l = 0;
+    $("#id_mg_per_dl").val(default_mg_per_dl);
+    $("#id_mmol_per_l").val(default_mmol_per_l);
+
+    const constraints = {
+        mmol_per_l: {
+            numericality: {
+                onlyInteger: true,
+                //strict: true,
+                greaterThanOrEqualTo: 0,
+                lessThanOrEqualTo: 1000
+            }
+        },
+        mg_per_dl: {
+            numericality: {
+                //strict: true,
+                greaterThanOrEqualTo: 0.0,
+                lessThanOrEqualTo: 100.0
+            }
+        }
+    };
+
+    function set_mmol_per_l(mmol_per_l) {
+        var rounded = Math.round(parseFloat(mmol_per_l) + 0.00001);
+        $("#id_mmol_per_l").val(rounded);
+    }
+
+    function set_mg_per_dl(mg_per_dl) {
+        var rounded = Math.round((parseFloat(mg_per_dl) + 0.00001) * 10) / 10;
+        $("#id_mg_per_dl").val(rounded);
+    }
+
+    $("#id_mmol_per_l").keyup(function () {
+        console.log('Input: mmol/L: ' + $(this).val());
+
+        var mmol_per_l = $(this).val();
+        var errors = validate({mmol_per_l: mmol_per_l}, constraints);
+        if (errors != null) {
+            { // Debug
+                for (var i = 0; i < errors['mmol_per_l'].length; ++i)
+                    console.log('Error: mmol/L: ' + errors['mmol_per_l'][i]);
+            }
+            set_mg_per_dl(default_mg_per_dl);
+            return;
+        }
+
+        $.ajax({
+            url: '/bgconverter/converters/mmol_per_l_to_mg_per_dl/',
+            data: {
+                'mmol_per_l': mmol_per_l
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.mg_per_dl) {
+                    console.log("Response: mg/dL: " + data.mg_per_dl);
+                    set_mg_per_dl(data.mg_per_dl);
+                }
+            }
+        });
+    });
+
+    $("#id_mg_per_dl").keyup(function () {
+        console.log('Input: mg/dL: ' + $(this).val());
+
+        var mg_per_dl = $(this).val();
+        var errors = validate({mg_per_dl: mg_per_dl}, constraints);
+        if (errors != null) {
+            { // Debug
+                for (var i = 0; i < errors['mg_per_dl'].length; ++i)
+                    console.log('Error: mg/dL: ' + errors['mg_per_dl'][i]);
+            }
+            set_mmol_per_l(default_mmol_per_l);
+            return;
+        }
+
+        $.ajax({
+            url: '/bgconverter/converters/mg_per_dl_to_mmol_per_l/',
+            data: {
+                'mg_per_dl': mg_per_dl
+            },
+            dataType: 'json',
+            success: function (data) {
+                if (data.mmol_per_l) {
+                    console.log("Response: mmol/L: " + data.mmol_per_l);
+                    set_mmol_per_l(data.mmol_per_l);
+                }
+            }
+        });
+    });
+</script>
+
+
+</body>
+</html>
