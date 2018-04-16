@@ -100,3 +100,10 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# bgconverter collected statics
+bgconverter/static/admin/
+bgconverter/static/grappelli/
+
+# do not save DB
+db.sqlite3
