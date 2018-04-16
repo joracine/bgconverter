@@ -12,7 +12,7 @@ phases:
     commands:
       - python manage.py makemigrations $APP_NAME
       - python manage.py migrate $APP_NAME
-      - python manage.py collectstatic
+      - python manage.py collectstatic --no-input
       - python manage.py test
 
 artifacts:
