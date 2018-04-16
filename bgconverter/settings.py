@@ -27,6 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['joracine.com',
                  'www.joracine.com',
+                 'bgconverterapp.sqrzpbwcxy.us-east-1.elasticbeanstalk.com',
 ]
 
 
